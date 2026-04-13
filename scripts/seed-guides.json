@@ -1,0 +1,209 @@
+[
+  {
+    "title": "System Monitoring & Logs",
+    "category": "Daily Operations",
+    "difficulty": "beginner",
+    "description": "Learn to monitor system performance and analyze logs using journalctl, dmesg, and top.",
+    "content": "Monitor RHEL system health using journalctl, dmesg, and standard Linux tools. Track CPU, memory, disk usage and identify issues from logs.",
+    "bash_script": "#!/bin/bash\necho '=== System Uptime ==='\nuptime\necho -e '\\n=== Memory Usage ==='\nfree -h\necho -e '\\n=== Disk Usage ==='\ndf -h\necho -e '\\n=== Top 5 Processes ==='\nps aux --sort=-%cpu | head -6\necho -e '\\n=== Recent Errors ==='\njournalctl -p err -n 10 --no-pager",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\nimport psutil\nfrom datetime import datetime\n\nprint(f'System Report - {datetime.now()}')\nprint(f'CPU: {psutil.cpu_percent()}%')\nmem = psutil.virtual_memory()\nprint(f'Memory: {mem.percent}%')\ndisk = psutil.disk_usage('/')\nprint(f'Disk: {disk.percent}%')"
+  },
+  {
+    "title": "Patching & Package Management",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Master dnf, yum, and rpm for secure and efficient package updates.",
+    "content": "Use dnf (Dandified Yum) for package management on RHEL 8+. Understand security updates, kernel patches, and dependency resolution.",
+    "bash_script": "#!/bin/bash\necho 'Checking for updates...'\nsudo dnf check-update\necho 'Installing security updates...'\nsudo dnf update -y --security\necho 'Listing installed packages...'\nrpm -qa | wc -l",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef run_cmd(cmd):\n    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)\n    return result.stdout\n\nprint('Available updates:')\nprint(run_cmd('sudo dnf check-update'))"
+  },
+  {
+    "title": "Network & DNS Troubleshooting",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Fix network issues using nmcli, systemctl, and DNS configuration.",
+    "content": "Diagnose and fix network problems using nmcli, systemctl, and DNS tools. Configure network interfaces and resolve connectivity issues.",
+    "bash_script": "#!/bin/bash\necho '=== Network Interfaces ==='\nnmcli device show\necho -e '\\n=== DNS Configuration ==='\ncat /etc/resolv.conf\necho -e '\\n=== Network Connectivity ==='\nping -c 1 8.8.8.8\necho -e '\\n=== Route Table ==='\nip route",
+    "python_script": "#!/usr/bin/env python3\nimport socket\nimport subprocess\n\nprint('DNS Resolution Test:')\ntry:\n    ip = socket.gethostbyname('google.com')\n    print(f'google.com -> {ip}')\nexcept:\n    print('DNS resolution failed')"
+  },
+  {
+    "title": "Disk & Storage Management",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Manage LVM, partitions, and storage with df, du, and mount commands.",
+    "content": "Master disk management including LVM, partitions, mounting, and storage optimization. Use df, du, and lvm tools effectively.",
+    "bash_script": "#!/bin/bash\necho '=== Disk Usage ==='\ndf -h\necho -e '\\n=== Directory Sizes ==='\ndu -sh /*\necho -e '\\n=== LVM Volumes ==='\nsudo lvs\necho -e '\\n=== Physical Volumes ==='\nsudo pvs",
+    "python_script": "#!/usr/bin/env python3\nimport os\nimport psutil\n\ndisk = psutil.disk_usage('/')\nprint(f'Total: {disk.total / (1024**3):.2f}GB')\nprint(f'Used: {disk.used / (1024**3):.2f}GB')\nprint(f'Free: {disk.free / (1024**3):.2f}GB')\nprint(f'Percent: {disk.percent}%')"
+  },
+  {
+    "title": "Users, Permissions & SELinux",
+    "category": "Daily Operations",
+    "difficulty": "advanced",
+    "description": "Control access with useradd, chmod, and SELinux policies.",
+    "content": "Manage user accounts, file permissions, and SELinux security policies. Implement least privilege access controls.",
+    "bash_script": "#!/bin/bash\necho '=== Creating User ==='\nsudo useradd -m -s /bin/bash newuser\necho -e '\\n=== Setting Permissions ==='\nsudo chmod 755 /home/newuser\necho -e '\\n=== SELinux Status ==='\ngetenforce\necho -e '\\n=== User Groups ==='\ngroups newuser",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\nimport pwd\n\nprint('System Users:')\nfor user in pwd.getwall():\n    print(f'{user.pw_name} (UID: {user.pw_uid})')"
+  },
+  {
+    "title": "Performance Troubleshooting",
+    "category": "Daily Operations",
+    "difficulty": "advanced",
+    "description": "Diagnose and fix performance issues using top, iostat, and vmstat.",
+    "content": "Identify performance bottlenecks using system monitoring tools. Analyze CPU, memory, disk I/O, and network performance.",
+    "bash_script": "#!/bin/bash\necho '=== CPU Info ==='\ncat /proc/cpuinfo | grep processor | wc -l\necho -e '\\n=== Load Average ==='\ncat /proc/loadavg\necho -e '\\n=== Disk I/O ==='\niostat -x 1 3\necho -e '\\n=== Memory Stats ==='\nvmstat 1 3",
+    "python_script": "#!/usr/bin/env python3\nimport psutil\nimport os\n\nprint('Performance Metrics:')\nprint(f'CPU Count: {psutil.cpu_count()}')\nprint(f'CPU Percent: {psutil.cpu_percent(interval=1)}%')\nprint(f'Load Average: {os.getloadavg()}')\nmem = psutil.virtual_memory()\nprint(f'Memory Available: {mem.available / (1024**3):.2f}GB')"
+  },
+  {
+    "title": "Service & Process Management",
+    "category": "Daily Operations",
+    "difficulty": "beginner",
+    "description": "Control services with systemctl and manage processes effectively.",
+    "content": "Use systemctl to manage systemd services. Start, stop, enable, and disable services. Monitor process status.",
+    "bash_script": "#!/bin/bash\necho '=== Service Status ==='\nsudo systemctl status sshd\necho -e '\\n=== Active Services ==='\nsudo systemctl list-units --type=service --state=running\necho -e '\\n=== Process List ==='\nps aux | head -10",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\nimport psutil\n\nprint('Running Services:')\nfor proc in psutil.process_iter(['pid', 'name']):\n    try:\n        print(f'{proc.info[\"pid\"]}: {proc.info[\"name\"]}')\n    except:\n        pass"
+  },
+  {
+    "title": "Backups & Recovery",
+    "category": "Daily Operations",
+    "difficulty": "advanced",
+    "description": "Implement reliable backups using rsync, tar, and restore procedures.",
+    "content": "Create and manage backups using rsync and tar. Implement recovery procedures and test backup integrity.",
+    "bash_script": "#!/bin/bash\necho '=== Creating Backup ==='\ntar -czf backup_$(date +%Y%m%d).tar.gz /home/user/important\necho -e '\\n=== Listing Backups ==='\nls -lh backup_*.tar.gz\necho -e '\\n=== Rsync Backup ==='\nrsync -avz /home/user/important /backup/",
+    "python_script": "#!/usr/bin/env python3\nimport tarfile\nimport os\nfrom datetime import datetime\n\nbackup_name = f'backup_{datetime.now().strftime(\"%Y%m%d\")}.tar.gz'\nwith tarfile.open(backup_name, 'w:gz') as tar:\n    tar.add('/home/user/important')\nprint(f'Backup created: {backup_name}')"
+  },
+  {
+    "title": "Hardware Issues on Physical Servers",
+    "category": "Daily Operations",
+    "difficulty": "advanced",
+    "description": "Diagnose hardware problems with lspci, dmidecode, and sensors.",
+    "content": "Identify and troubleshoot hardware issues. Use system tools to check CPU, memory, disks, and other components.",
+    "bash_script": "#!/bin/bash\necho '=== PCI Devices ==='\nlspci\necho -e '\\n=== System Information ==='\ndmidecode | head -20\necho -e '\\n=== Temperature Sensors ==='\nsensors\necho -e '\\n=== Disk Health ==='\nsudo smartctl -a /dev/sda",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef run_cmd(cmd):\n    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)\n    return result.stdout\n\nprint('System Hardware:')\nprint(run_cmd('lspci | head -10'))"
+  },
+  {
+    "title": "AWS EC2 & SSM Patch Manager",
+    "category": "AWS",
+    "difficulty": "intermediate",
+    "description": "Manage RHEL instances on AWS with EC2, SSM, and patch automation.",
+    "content": "Deploy and manage RHEL on AWS EC2. Use Systems Manager for patching and automation.",
+    "bash_script": "#!/bin/bash\necho '=== EC2 Instance Info ==='\ncurl -s http://169.254.169.254/latest/meta-data/instance-id\necho -e '\\n=== Availability Zone ==='\ncurl -s http://169.254.169.254/latest/meta-data/placement/availability-zone\necho -e '\\n=== Security Groups ==='\naws ec2 describe-security-groups --query 'SecurityGroups[*].[GroupName]'",
+    "python_script": "#!/usr/bin/env python3\nimport boto3\n\nec2 = boto3.client('ec2')\ninstances = ec2.describe_instances()\nfor res in instances['Reservations']:\n    for inst in res['Instances']:\n        print(f'Instance: {inst[\"InstanceId\"]}')\n        print(f'State: {inst[\"State\"][\"Name\"]}')"
+  },
+  {
+    "title": "Fresh RHEL 9 Installation",
+    "category": "Major Projects",
+    "difficulty": "beginner",
+    "description": "Complete guide to installing RHEL 9 on physical servers and AWS EC2.",
+    "content": "Step-by-step guide for fresh RHEL 9 installation. Covers physical servers and AWS EC2 deployment.",
+    "bash_script": "#!/bin/bash\necho '=== RHEL 9 Installation Guide ==='\necho 'Step 1: Boot from RHEL 9 ISO'\necho 'Step 2: Select installation destination'\necho 'Step 3: Configure network'\necho 'Step 4: Set root password'\necho 'Step 5: Create user account'\necho 'Step 6: Begin installation'",
+    "python_script": "#!/usr/bin/env python3\nprint('RHEL 9 Installation Checklist')\nsteps = [\n    'Boot from ISO',\n    'Select disk',\n    'Configure network',\n    'Set passwords',\n    'Create users',\n    'Install system'\n]\nfor i, step in enumerate(steps, 1):\n    print(f'{i}. {step}')"
+  },
+  {
+    "title": "RHEL 8 to 9 Major Upgrade",
+    "category": "Major Projects",
+    "difficulty": "advanced",
+    "description": "Safely upgrade from RHEL 8 to 9 using Leapp with zero downtime.",
+    "content": "Use Leapp tool for in-place upgrade from RHEL 8 to 9. Minimize downtime and ensure compatibility.",
+    "bash_script": "#!/bin/bash\necho '=== Pre-Upgrade Checks ==='\nsudo leapp preupgrade\necho -e '\\n=== Fixing Issues ==='\nsudo leapp answer --section remove_pam_pkcs11_module_check=True\necho -e '\\n=== Starting Upgrade ==='\nsudo leapp upgrade\necho -e '\\n=== Reboot ==='\nsudo reboot",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\nimport sys\n\ndef run_upgrade():\n    cmds = [\n        'sudo leapp preupgrade',\n        'sudo leapp upgrade',\n        'sudo reboot'\n    ]\n    for cmd in cmds:\n        print(f'Running: {cmd}')\n        # subprocess.run(cmd, shell=True)"
+  },
+  {
+    "title": "Automated Patching with Satellite",
+    "category": "Major Projects",
+    "difficulty": "advanced",
+    "description": "Set up Red Hat Satellite for centralized patch management.",
+    "content": "Configure Red Hat Satellite for automated patching across RHEL systems.",
+    "bash_script": "#!/bin/bash\necho '=== Register with Satellite ==='\nsudo subscription-manager register --org=MyOrg --activationkey=mykey\necho -e '\\n=== Enable Satellite Repos ==='\nsudo subscription-manager repos --enable=rhel-*-satellite-tools-*\necho -e '\\n=== Install Satellite Tools ==='\nsudo dnf install -y osad",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\nprint('Satellite Registration')\nprint('1. Register system')\nprint('2. Enable repos')\nprint('3. Install tools')"
+  },
+  {
+    "title": "Firewall Configuration with firewalld",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Configure firewall rules using firewalld on RHEL.",
+    "content": "Manage firewall rules with firewalld. Open/close ports, configure zones, and implement security policies.",
+    "bash_script": "#!/bin/bash\necho '=== Firewall Status ==='\nsudo firewall-cmd --state\necho -e '\\n=== List Rules ==='\nsudo firewall-cmd --list-all\necho -e '\\n=== Open Port ==='\nsudo firewall-cmd --permanent --add-port=8080/tcp\nsudo firewall-cmd --reload",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef firewall_cmd(args):\n    cmd = f'sudo firewall-cmd {args}'\n    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)\n    return result.stdout\n\nprint(firewall_cmd('--state'))"
+  },
+  {
+    "title": "SSH Key Management & Security",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Secure SSH access with key-based authentication.",
+    "content": "Configure SSH keys, disable password auth, and implement security best practices.",
+    "bash_script": "#!/bin/bash\necho '=== Generate SSH Key ==='\nssh-keygen -t ed25519 -f ~/.ssh/id_ed25519\necho -e '\\n=== Copy to Server ==='\nssh-copy-id -i ~/.ssh/id_ed25519.pub user@server\necho -e '\\n=== Test SSH ==='\nssh -i ~/.ssh/id_ed25519 user@server 'echo Connected'",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\nimport os\n\nkey_file = os.path.expanduser('~/.ssh/id_ed25519')\nif not os.path.exists(key_file):\n    print('Generating SSH key...')\n    subprocess.run(['ssh-keygen', '-t', 'ed25519', '-f', key_file])"
+  },
+  {
+    "title": "Container Management with Podman",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Run and manage containers using Podman on RHEL.",
+    "content": "Use Podman for container management. Pull images, run containers, and manage container lifecycle.",
+    "bash_script": "#!/bin/bash\necho '=== Install Podman ==='\nsudo dnf install -y podman\necho -e '\\n=== Pull Image ==='\npodman pull registry.access.redhat.com/ubi8/ubi\necho -e '\\n=== Run Container ==='\npodman run -it registry.access.redhat.com/ubi8/ubi /bin/bash\necho -e '\\n=== List Containers ==='\npodman ps -a",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef podman_cmd(args):\n    cmd = f'podman {args}'\n    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)\n    return result.stdout\n\nprint('Podman Images:')\nprint(podman_cmd('images'))"
+  },
+  {
+    "title": "Kernel Tuning & Performance",
+    "category": "Daily Operations",
+    "difficulty": "advanced",
+    "description": "Optimize kernel parameters for performance.",
+    "content": "Tune kernel parameters using sysctl for optimal performance.",
+    "bash_script": "#!/bin/bash\necho '=== View Kernel Parameters ==='\nsysctl -a | grep net.core\necho -e '\\n=== Set Parameter ==='\nsudo sysctl -w net.core.somaxconn=65535\necho -e '\\n=== Persist Changes ==='\necho 'net.core.somaxconn=65535' | sudo tee -a /etc/sysctl.conf",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef get_sysctl(param):\n    cmd = f'sysctl {param}'\n    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)\n    return result.stdout\n\nprint(get_sysctl('net.core.somaxconn'))"
+  },
+  {
+    "title": "Systemd Service Creation",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Create and manage custom systemd services.",
+    "content": "Write systemd service files for custom applications.",
+    "bash_script": "#!/bin/bash\necho '=== Create Service File ==='\nsudo tee /etc/systemd/system/myapp.service > /dev/null <<EOF\n[Unit]\nDescription=My Application\nAfter=network.target\n\n[Service]\nType=simple\nUser=myuser\nWorkingDirectory=/opt/myapp\nExecStart=/opt/myapp/start.sh\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target\nEOF\necho -e '\\n=== Enable Service ==='\nsudo systemctl daemon-reload\nsudo systemctl enable myapp.service",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\nservice_content = '''[Unit]\nDescription=Python App\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/usr/bin/python3 /opt/app/main.py\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target\n'''\n\nwith open('/etc/systemd/system/pyapp.service', 'w') as f:\n    f.write(service_content)\nprint('Service file created')"
+  },
+  {
+    "title": "Log Rotation with logrotate",
+    "category": "Daily Operations",
+    "difficulty": "beginner",
+    "description": "Configure automatic log rotation to manage disk space.",
+    "content": "Set up logrotate to automatically rotate and compress logs.",
+    "bash_script": "#!/bin/bash\necho '=== Create Logrotate Config ==='\nsudo tee /etc/logrotate.d/myapp > /dev/null <<EOF\n/var/log/myapp/*.log {\n    daily\n    rotate 7\n    compress\n    delaycompress\n    notifempty\n    create 0640 myuser mygroup\n    sharedscripts\n}\nEOF\necho -e '\\n=== Test Logrotate ==='\nsudo logrotate -d /etc/logrotate.d/myapp",
+    "python_script": "#!/usr/bin/env python3\nimport os\nimport subprocess\nfrom datetime import datetime\n\nlog_file = '/var/log/myapp/app.log'\nif os.path.getsize(log_file) > 100*1024*1024:  # 100MB\n    backup = f'{log_file}.{datetime.now().strftime(\"%Y%m%d\")}'\n    os.rename(log_file, backup)\n    print(f'Log rotated to {backup}')"
+  },
+  {
+    "title": "SELinux Policy Management",
+    "category": "Daily Operations",
+    "difficulty": "advanced",
+    "description": "Manage SELinux policies for security.",
+    "content": "Configure and troubleshoot SELinux policies.",
+    "bash_script": "#!/bin/bash\necho '=== SELinux Status ==='\ngetenforce\necho -e '\\n=== Set to Enforcing ==='\nsudo setenforce 1\necho -e '\\n=== Check Violations ==='\nsudo ausearch -m avc -ts recent\necho -e '\\n=== Generate Policy ==='\nsudo audit2allow -a -M mymodule",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef get_selinux_status():\n    result = subprocess.run(['getenforce'], capture_output=True, text=True)\n    return result.stdout.strip()\n\nprint(f'SELinux Status: {get_selinux_status()}')"
+  },
+  {
+    "title": "NFS Mount Configuration",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Configure NFS mounts for network storage.",
+    "content": "Set up NFS client and mount remote filesystems.",
+    "bash_script": "#!/bin/bash\necho '=== Install NFS Client ==='\nsudo dnf install -y nfs-utils\necho -e '\\n=== Create Mount Point ==='\nsudo mkdir -p /mnt/nfs\necho -e '\\n=== Mount NFS ==='\nsudo mount -t nfs server:/export /mnt/nfs\necho -e '\\n=== Persistent Mount ==='\necho 'server:/export /mnt/nfs nfs defaults 0 0' | sudo tee -a /etc/fstab",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\nimport os\n\nmount_point = '/mnt/nfs'\nif not os.path.ismount(mount_point):\n    cmd = f'sudo mount -t nfs server:/export {mount_point}'\n    subprocess.run(cmd, shell=True)\n    print(f'Mounted NFS at {mount_point}')"
+  },
+  {
+    "title": "Certificate Management with certbot",
+    "category": "Daily Operations",
+    "difficulty": "intermediate",
+    "description": "Obtain and manage SSL/TLS certificates.",
+    "content": "Use certbot to get free SSL certificates from Let's Encrypt.",
+    "bash_script": "#!/bin/bash\necho '=== Install Certbot ==='\nsudo dnf install -y certbot python3-certbot-nginx\necho -e '\\n=== Get Certificate ==='\nsudo certbot certonly --nginx -d example.com\necho -e '\\n=== Auto Renewal ==='\nsudo systemctl enable certbot-renew.timer",
+    "python_script": "#!/usr/bin/env python3\nimport subprocess\n\ndef get_certificate(domain):\n    cmd = f'sudo certbot certonly --standalone -d {domain}'\n    subprocess.run(cmd, shell=True)\n    print(f'Certificate obtained for {domain}')\n\nget_certificate('example.com')"
+  },
+  {
+    "title": "Monitoring with Prometheus & Grafana",
+    "category": "Major Projects",
+    "difficulty": "advanced",
+    "description": "Set up system monitoring with Prometheus and Grafana.",
+    "content": "Deploy Prometheus for metrics collection and Grafana for visualization.",
+    "bash_script": "#!/bin/bash\necho '=== Install Prometheus ==='\nsudo dnf install -y prometheus\necho -e '\\n=== Start Service ==='\nsudo systemctl start prometheus\nsudo systemctl enable prometheus\necho -e '\\n=== Install Grafana ==='\nsudo dnf install -y grafana-server\nsudo systemctl start grafana-server",
+    "python_script": "#!/usr/bin/env python3\nimport requests\n\ndef query_prometheus(query):\n    url = 'http://localhost:9090/api/v1/query'\n    params = {'query': query}\n    response = requests.get(url, params=params)\n    return response.json()\n\nresult = query_prometheus('up')\nprint(result)"
+  }
+]
