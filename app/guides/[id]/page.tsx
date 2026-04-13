@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Download, Copy, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 const GUIDE_DETAILS: Record<string, any> = {
   '1': {
@@ -48,156 +49,142 @@ sudo dnf check-update
 echo 'Installing security updates...'
 sudo dnf update -y --security
 echo 'Listing installed packages...'
-rpm -qa | wc -l`,
+dnf list installed | wc -l`,
     pythonScript: `#!/usr/bin/env python3
 import subprocess
 
-def run_cmd(cmd):
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    return result.stdout
-
+result = subprocess.run(['dnf', 'check-update'], capture_output=True, text=True)
 print('Available updates:')
-print(run_cmd('sudo dnf check-update'))`,
+print(result.stdout)`,
   },
   '3': {
     title: 'Network & DNS Troubleshooting',
     category: 'Daily Operations',
     difficulty: 'intermediate',
     icon: '🌐',
-    description: 'Fix network issues using nmcli, systemctl, and DNS configuration.',
-    content: `Diagnose and fix network problems using nmcli, systemctl, and DNS tools. Configure network interfaces and resolve connectivity issues.`,
+    description: 'Fix network connectivity issues and DNS resolution problems.',
+    content: `Troubleshoot network issues using nmcli, ip, and dig. Configure DNS, test connectivity, and diagnose routing problems.`,
     bashScript: `#!/bin/bash
 echo '=== Network Interfaces ==='
 nmcli device show
 echo -e '\\n=== DNS Configuration ==='
 cat /etc/resolv.conf
-echo -e '\\n=== Network Connectivity ==='
-ping -c 1 8.8.8.8
-echo -e '\\n=== Route Table ==='
+echo -e '\\n=== DNS Test ==='
+dig google.com
+echo -e '\\n=== Routing Table ==='
 ip route`,
     pythonScript: `#!/usr/bin/env python3
 import socket
 import subprocess
 
-print('DNS Resolution Test:')
-try:
-    ip = socket.gethostbyname('google.com')
-    print(f'google.com -> {ip}')
-except:
-    print('DNS resolution failed')`,
+hostname = socket.gethostname()
+ip = socket.gethostbyname(hostname)
+print(f'Hostname: {hostname}')
+print(f'IP: {ip}')`,
   },
   '4': {
     title: 'Disk & Storage Management',
     category: 'Daily Operations',
     difficulty: 'intermediate',
     icon: '💾',
-    description: 'Manage LVM, partitions, and storage with df, du, and mount commands.',
-    content: `Master disk management including LVM, partitions, mounting, and storage optimization. Use df, du, and lvm tools effectively.`,
+    description: 'Manage LVM, partitions, and storage optimization.',
+    content: `Learn LVM (Logical Volume Manager), partition management, and storage optimization techniques for RHEL systems.`,
     bashScript: `#!/bin/bash
 echo '=== Disk Usage ==='
 df -h
-echo -e '\\n=== Directory Sizes ==='
-du -sh /*
+echo -e '\\n=== Partition Info ==='
+fdisk -l
 echo -e '\\n=== LVM Volumes ==='
-sudo lvs
+lvs
 echo -e '\\n=== Physical Volumes ==='
-sudo pvs`,
+pvs`,
     pythonScript: `#!/usr/bin/env python3
-import os
-import psutil
+import shutil
 
-disk = psutil.disk_usage('/')
-print(f'Total: {disk.total / (1024**3):.2f}GB')
-print(f'Used: {disk.used / (1024**3):.2f}GB')
-print(f'Free: {disk.free / (1024**3):.2f}GB')
-print(f'Percent: {disk.percent}%')`,
+total, used, free = shutil.disk_usage('/')
+print(f'Total: {total // (2**30)}GB')
+print(f'Used: {used // (2**30)}GB')
+print(f'Free: {free // (2**30)}GB')`,
   },
   '5': {
     title: 'Users, Permissions & SELinux',
     category: 'Daily Operations',
     difficulty: 'advanced',
     icon: '🔐',
-    description: 'Control access with useradd, chmod, and SELinux policies.',
-    content: `Manage user accounts, file permissions, and SELinux security policies. Implement least privilege access controls.`,
+    description: 'Manage users, file permissions, and SELinux policies.',
+    content: `Master user management, file permissions, and SELinux security policies to maintain system security.`,
     bashScript: `#!/bin/bash
-echo '=== Creating User ==='
-sudo useradd -m -s /bin/bash newuser
-echo -e '\\n=== Setting Permissions ==='
-sudo chmod 755 /home/newuser
+echo '=== User Accounts ==='
+cat /etc/passwd
+echo -e '\\n=== Current User ==='
+whoami
+echo -e '\\n=== File Permissions ==='
+ls -la /home
 echo -e '\\n=== SELinux Status ==='
-getenforce
-echo -e '\\n=== User Groups ==='
-groups newuser`,
+getenforce`,
     pythonScript: `#!/usr/bin/env python3
-import subprocess
+import os
 import pwd
 
-print('System Users:')
-try:
-    for user in pwd.getwall():
-        print(f'{user.pw_name} (UID: {user.pw_uid})')
-except:
-    print('Unable to list users')`,
+print('Current UID:', os.getuid())
+print('Current User:', pwd.getpwuid(os.getuid()).pw_name)`,
   },
   '6': {
     title: 'Performance Troubleshooting',
     category: 'Daily Operations',
     difficulty: 'advanced',
     icon: '⚡',
-    description: 'Diagnose and fix performance issues using top, iostat, and vmstat.',
-    content: `Identify performance bottlenecks using system profiling tools. Analyze CPU, memory, disk I/O, and network performance.`,
+    description: 'Identify and resolve performance bottlenecks.',
+    content: `Use tools like top, iostat, and vmstat to identify CPU, memory, and disk I/O bottlenecks.`,
     bashScript: `#!/bin/bash
-echo '=== CPU Performance ==='
-top -bn1 | head -15
+echo '=== CPU Usage ==='
+top -bn1 | head -20
+echo -e '\\n=== Memory Usage ==='
+free -h
 echo -e '\\n=== Disk I/O ==='
-iostat -x 1 3
-echo -e '\\n=== Memory Stats ==='
-vmstat 1 3`,
+iostat -x 1 3`,
     pythonScript: `#!/usr/bin/env python3
 import psutil
-import time
 
-print('Performance Metrics:')
-print(f'CPU Percent: {psutil.cpu_percent(interval=1)}%')
+print(f'CPU: {psutil.cpu_percent()}%')
 print(f'Memory: {psutil.virtual_memory().percent}%')
-print(f'Disk I/O: {psutil.disk_io_counters()}')`,
+print(f'Disk: {psutil.disk_usage("/").percent}%')`,
   },
   '7': {
-    title: 'Service & Process Management',
+    title: 'Services & Process Management',
     category: 'Daily Operations',
-    difficulty: 'beginner',
-    icon: '🔧',
-    description: 'Control services with systemctl and manage processes effectively.',
-    content: `Master systemctl for service management. Start, stop, enable, and manage system services and daemons.`,
+    difficulty: 'intermediate',
+    icon: '⚙️',
+    description: 'Control systemd services and manage processes.',
+    content: `Manage services with systemctl, monitor processes, and configure auto-start services.`,
     bashScript: `#!/bin/bash
-echo '=== Service Status ==='
-sudo systemctl status sshd
-echo -e '\\n=== Enable Service ==='
-sudo systemctl enable sshd
-echo -e '\\n=== Restart Service ==='
-sudo systemctl restart sshd
-echo -e '\\n=== List All Services ==='
-systemctl list-units --type=service`,
+echo '=== Active Services ==='
+systemctl list-units --type=service --state=running
+echo -e '\\n=== Service Status ==='
+systemctl status sshd
+echo -e '\\n=== Process List ==='
+ps aux`,
     pythonScript: `#!/usr/bin/env python3
 import subprocess
 
-def check_service(service):
-    result = subprocess.run(['systemctl', 'is-active', service], capture_output=True, text=True)
-    return result.stdout.strip()
-
-print(f'SSH Status: {check_service("sshd")}')`,
+result = subprocess.run(['systemctl', 'list-units', '--type=service'], capture_output=True, text=True)
+print(result.stdout)`,
   },
   '8': {
     title: 'Backups & Recovery',
-    category: 'Daily Operations',
+    category: 'Major Projects',
     difficulty: 'advanced',
     icon: '💾',
-    description: 'Implement reliable backups using rsync, tar, and restore procedures.',
-    content: `Create and manage system backups. Implement backup strategies, test recovery procedures, and automate backups.`,
+    description: 'Implement backup strategies and recovery procedures.',
+    content: `Create reliable backup solutions and test recovery procedures for disaster recovery.`,
     bashScript: `#!/bin/bash
 echo '=== Creating Backup ==='
-sudo tar -czf /backup/system-$(date +%Y%m%d).tar.gz /home /etc
-echo -e '\\n=== Using rsync ==='
+sudo tar -czf /backup/system-backup-$(date +%Y%m%d).tar.gz /etc /home
+echo -e '\\n=== Backup List ==='
+ls -lh /backup/
+echo -e '\\n=== Backup Size ==='
+du -sh /backup/
+echo -e '\\n=== Rsync Backup ==='
 sudo rsync -av /home/ /backup/home-backup/
 echo -e '\\n=== Listing Backups ==='
 ls -lh /backup/`,
@@ -212,7 +199,7 @@ with tarfile.open(backup_name, 'w:gz') as tar:
 print(f'Backup created: {backup_name}')`,
   },
   '9': {
-    title: 'Hardware Issues on Physical Servers',
+    title: 'Hardware Issues',
     category: 'Daily Operations',
     difficulty: 'advanced',
     icon: '🖥️',
@@ -236,11 +223,11 @@ print(f'Total Memory: {psutil.virtual_memory().total / (1024**3):.2f}GB')
 print(f'Boot Time: {psutil.boot_time()}')`,
   },
   '10': {
-    title: 'AWS EC2 & SSM Patch Manager',
+    title: 'AWS EC2 & SSM',
     category: 'AWS',
     difficulty: 'intermediate',
     icon: '☁️',
-    description: 'Manage RHEL instances on AWS with EC2, SSM, and patch automation.',
+    description: 'Manage RHEL instances on AWS with EC2 and Systems Manager.',
     content: `Deploy and manage RHEL on AWS EC2. Use Systems Manager for patching, configuration, and automation.`,
     bashScript: `#!/bin/bash
 echo '=== EC2 Instance Info ==='
@@ -252,55 +239,60 @@ sudo yum check-update`,
     pythonScript: `#!/usr/bin/env python3
 import boto3
 
-ec2 = boto3.client('ec2', region_name='us-east-1')
+ec2 = boto3.client('ec2')
 instances = ec2.describe_instances()
 for reservation in instances['Reservations']:
     for instance in reservation['Instances']:
         print(f"Instance: {instance['InstanceId']}")`,
   },
   '11': {
-    title: 'Fresh RHEL 9 Installation',
+    title: 'Fresh RHEL Installation',
     category: 'Major Projects',
     difficulty: 'beginner',
-    icon: '🚀',
-    description: 'Complete guide to installing RHEL 9 on physical servers and AWS EC2.',
-    content: `Step-by-step RHEL 9 installation guide. Covers physical servers, AWS EC2, and post-installation configuration.`,
+    icon: '📥',
+    description: 'Set up a fresh RHEL 9 system from scratch.',
+    content: `Complete guide to installing RHEL 9, initial configuration, and essential setup steps.`,
     bashScript: `#!/bin/bash
-echo '=== Post-Installation Setup ==='
+echo '=== System Update ==='
 sudo dnf update -y
-sudo dnf install -y wget curl git vim
-echo '=== Enable EPEL ==='
-sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-echo '=== System Ready ==='
-uname -a`,
+echo -e '\\n=== Install Essential Tools ==='
+sudo dnf install -y git curl wget vim
+echo -e '\\n=== Configure Firewall ==='
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --reload`,
     pythonScript: `#!/usr/bin/env python3
-import platform
+import subprocess
+import sys
 
-print(f'OS: {platform.system()}')
-print(f'Release: {platform.release()}')
-print(f'Version: {platform.version()}')`,
+packages = ['git', 'curl', 'wget', 'vim']
+for pkg in packages:
+    subprocess.run(['sudo', 'dnf', 'install', '-y', pkg])
+print('Installation complete!')`,
   },
   '12': {
-    title: 'RHEL 8 to 9 Major Upgrade',
+    title: 'RHEL 8 to 9 Upgrade',
     category: 'Major Projects',
     difficulty: 'advanced',
-    icon: '📈',
-    description: 'Safely upgrade from RHEL 8 to 9 using Leapp with zero downtime.',
-    content: `In-place upgrade from RHEL 8 to RHEL 9 using Leapp. Includes pre-upgrade checks, migration, and post-upgrade validation.`,
+    icon: '⬆️',
+    description: 'Upgrade from RHEL 8 to RHEL 9 safely.',
+    content: `Step-by-step guide for upgrading RHEL 8 systems to RHEL 9 with minimal downtime.`,
     bashScript: `#!/bin/bash
-echo '=== Pre-upgrade Check ==='
+echo '=== Pre-upgrade Checks ==='
+sudo dnf update -y
+echo -e '\\n=== Install Leapp ==='
+sudo dnf install -y leapp-upgrade
+echo -e '\\n=== Run Leapp Precheck ==='
 sudo leapp preupgrade
-echo -e '\\n=== Upgrade System ==='
-sudo leapp upgrade
-echo -e '\\n=== Reboot ==='
-sudo reboot`,
+echo -e '\\n=== Start Upgrade ==='
+sudo leapp upgrade`,
     pythonScript: `#!/usr/bin/env python3
 import subprocess
 
-result = subprocess.run(['cat', '/etc/os-release'], capture_output=True, text=True)
-print('Current OS:')
-print(result.stdout)`,
-  }
+print('RHEL Upgrade Script')
+subprocess.run(['sudo', 'dnf', 'update', '-y'])
+subprocess.run(['sudo', 'dnf', 'install', '-y', 'leapp-upgrade'])
+print('Upgrade preparation complete!')`,
+  },
 };
 
 const getDifficultyColor = (difficulty: string) => {
@@ -316,7 +308,11 @@ const getDifficultyColor = (difficulty: string) => {
   }
 };
 
-export default function GuideDetailPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function GuideDetailPage({ params }: PageProps) {
   const [guide, setGuide] = useState<any>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     bash: true,
@@ -324,10 +320,13 @@ export default function GuideDetailPage({ params }: { params: { id: string } }) 
   });
 
   useEffect(() => {
-    if (params?.id) {
-      setGuide(GUIDE_DETAILS[params.id]);
-    }
-  }, [params?.id]);
+    params.then((resolvedParams) => {
+      const id = resolvedParams.id;
+      if (id) {
+        setGuide(GUIDE_DETAILS[id]);
+      }
+    });
+  }, [params]);
 
   if (!guide) {
     return (
@@ -342,11 +341,8 @@ export default function GuideDetailPage({ params }: { params: { id: string } }) 
           </Link>
           <div className="text-center py-12">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Guide not found
+              Loading guide...
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              The guide you're looking for doesn't exist.
-            </p>
           </div>
         </div>
       </div>
@@ -405,91 +401,92 @@ export default function GuideDetailPage({ params }: { params: { id: string } }) 
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
             {guide.description}
           </p>
-          <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            {guide.content}
+          <div className="prose dark:prose-invert max-w-none">
+            <p className="text-gray-700 dark:text-gray-300">{guide.content}</p>
           </div>
         </div>
 
-        {/* Bash Script */}
-        <div className="bg-white dark:bg-dark-card rounded-lg border border-gray-200 dark:border-dark-border mb-8 overflow-hidden">
-          <button
-            onClick={() => setExpandedSections(prev => ({ ...prev, bash: !prev.bash }))}
-            className="w-full px-8 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-dark-border transition-colors"
-          >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Bash Script</h3>
-            {expandedSections.bash ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
+        {/* Scripts */}
+        <div className="space-y-6">
+          {/* Bash Script */}
+          <div className="bg-white dark:bg-dark-card rounded-lg border border-gray-200 dark:border-dark-border overflow-hidden">
+            <button
+              onClick={() => setExpandedSections({ ...expandedSections, bash: !expandedSections.bash })}
+              className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-dark-border hover:bg-gray-100 dark:hover:bg-dark-border/80 transition-colors"
+            >
+              <span className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="text-lg">🐚</span> Bash Script
+              </span>
+              {expandedSections.bash ? (
+                <ChevronUp className="w-5 h-5" />
+              ) : (
+                <ChevronDown className="w-5 h-5" />
+              )}
+            </button>
+            {expandedSections.bash && (
+              <div className="p-6 border-t border-gray-200 dark:border-dark-border">
+                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-4">
+                  <code>{guide.bashScript}</code>
+                </pre>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => copyToClipboard(guide.bashScript)}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copy
+                  </button>
+                  <button
+                    onClick={() => downloadScript('script.sh', guide.bashScript)}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                </div>
+              </div>
             )}
-          </button>
+          </div>
 
-          {expandedSections.bash && (
-            <div className="border-t border-gray-200 dark:border-dark-border p-8">
-              <div className="bg-gray-900 rounded-lg p-4 mb-4 overflow-x-auto">
-                <code className="text-green-400 font-mono text-sm whitespace-pre-wrap break-words">
-                  {guide.bashScript}
-                </code>
+          {/* Python Script */}
+          <div className="bg-white dark:bg-dark-card rounded-lg border border-gray-200 dark:border-dark-border overflow-hidden">
+            <button
+              onClick={() => setExpandedSections({ ...expandedSections, python: !expandedSections.python })}
+              className="w-full px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-dark-border hover:bg-gray-100 dark:hover:bg-dark-border/80 transition-colors"
+            >
+              <span className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="text-lg">🐍</span> Python Script
+              </span>
+              {expandedSections.python ? (
+                <ChevronUp className="w-5 h-5" />
+              ) : (
+                <ChevronDown className="w-5 h-5" />
+              )}
+            </button>
+            {expandedSections.python && (
+              <div className="p-6 border-t border-gray-200 dark:border-dark-border">
+                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-4">
+                  <code>{guide.pythonScript}</code>
+                </pre>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => copyToClipboard(guide.pythonScript)}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copy
+                  </button>
+                  <button
+                    onClick={() => downloadScript('script.py', guide.pythonScript)}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-3 flex-wrap">
-                <button
-                  onClick={() => copyToClipboard(guide.bashScript)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  Copy
-                </button>
-                <button
-                  onClick={() => downloadScript(`${guide.title.toLowerCase().replace(/\s+/g, '-')}.sh`, guide.bashScript)}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Download
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Python Script */}
-        <div className="bg-white dark:bg-dark-card rounded-lg border border-gray-200 dark:border-dark-border overflow-hidden">
-          <button
-            onClick={() => setExpandedSections(prev => ({ ...prev, python: !prev.python }))}
-            className="w-full px-8 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-dark-border transition-colors"
-          >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Python Script</h3>
-            {expandedSections.python ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
             )}
-          </button>
-
-          {expandedSections.python && (
-            <div className="border-t border-gray-200 dark:border-dark-border p-8">
-              <div className="bg-gray-900 rounded-lg p-4 mb-4 overflow-x-auto">
-                <code className="text-blue-400 font-mono text-sm whitespace-pre-wrap break-words">
-                  {guide.pythonScript}
-                </code>
-              </div>
-              <div className="flex gap-3 flex-wrap">
-                <button
-                  onClick={() => copyToClipboard(guide.pythonScript)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  Copy
-                </button>
-                <button
-                  onClick={() => downloadScript(`${guide.title.toLowerCase().replace(/\s+/g, '-')}.py`, guide.pythonScript)}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Download
-                </button>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
