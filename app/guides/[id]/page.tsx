@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Copy, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -316,13 +316,18 @@ const getDifficultyColor = (difficulty: string) => {
   }
 };
 
-export default async function GuideDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  const guide = GUIDE_DETAILS[resolvedParams.id];
+export default function GuideDetailPage({ params }: { params: { id: string } }) {
+  const [guide, setGuide] = useState<any>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     bash: true,
     python: false,
   });
+
+  useEffect(() => {
+    if (params?.id) {
+      setGuide(GUIDE_DETAILS[params.id]);
+    }
+  }, [params?.id]);
 
   if (!guide) {
     return (
