@@ -316,8 +316,9 @@ const getDifficultyColor = (difficulty: string) => {
   }
 };
 
-export default function GuideDetailPage({ params }: { params: { id: string } }) {
-  const guide = GUIDE_DETAILS[params.id];
+export default async function GuideDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const guide = GUIDE_DETAILS[resolvedParams.id];
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     bash: true,
     python: false,
